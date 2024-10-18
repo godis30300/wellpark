@@ -1,11 +1,11 @@
 import './App.css'
-import BasicTable from './components/BasicTable'
+import GoogleMaps from './components/GoogleMaps.jsx'
 
 function App() {
 
   return (
     <>
-     <BasicTable />
+     <GoogleMaps />
     </>
   )
 }
