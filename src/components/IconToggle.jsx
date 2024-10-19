@@ -1,0 +1,78 @@
+import { useState } from 'react';
+import AboutIcon from '../img/about.png';
+import FeeIcon from '../img/fee.png';
+import LotIcon from '../img/lot.png';
+import ListIcon from '../img/list.png';
+import AboutIcon_hover from '../img/about-hover.png';
+import FeeIcon_hover from '../img/fee-hover.png';
+import LotIcon_hover from '../img/lot-hover.png';
+import ListIcon_hover from '../img/list-hover.png';
+import { Typography } from '@mui/material'; // 用於顯示文字
+
+// 定義一個 IconToggle 組件
+export default function IconToggle({ iconType, link }) {
+    // 使用 useState 來控制 hover 狀態
+    const [hover, setHover] = useState(false);
+
+    // 根據傳入的 iconType 動態選擇對應的初始圖標和 hover 圖標
+    const getIcon = () => {
+        switch (iconType) {
+            case 'about':
+                return hover ? AboutIcon_hover : AboutIcon;
+            case 'fee':
+                return hover ? FeeIcon_hover : FeeIcon;
+            case 'lot':
+                return hover ? LotIcon_hover : LotIcon;
+            case 'list':
+                return hover ? ListIcon_hover : ListIcon;
+            default:
+                return ListIcon;  // 默認圖標
+        }
+    };
+
+    // 根據傳入的 iconType 設置對應的文字
+    const getText = () => {
+        switch (iconType) {
+            case 'about':
+                return '關於我';
+            case 'fee':
+                return '停車費';
+            case 'lot':
+                return '找車位';
+            case 'list':
+                return '活動表';
+            default:
+                return 'List';  // 默認文字
+        }
+    };
+
+    // 設定 hover 時背景和文字顏色變化的樣式
+    const containerStyle = {
+        textAlign: 'center',
+        borderRadius: '8px',
+        backgroundColor: hover ? '#f0f0f0' : 'black', // 背景顏色變化
+        transition: 'background-color 0.3s',         // 背景顏色平滑過渡
+        cursor: 'pointer',
+    };
+
+    const textStyle = {
+        color: hover ? '#007bff' : 'white',  // 文字顏色變化
+        transition: 'color 0.3s',           // 文字顏色平滑過渡
+        marginTop: '0.5rem'
+    };
+
+    return (
+        <a href={link} style={{ textDecoration: 'none' }}>
+        <div
+            style={containerStyle}
+            onMouseEnter={() => setHover(true)}  // 當鼠標進入時設置 hover 為 true
+            onMouseLeave={() => setHover(false)} // 當鼠標離開時設置 hover 為 false
+        >
+            <img src={getIcon()} alt={`${iconType} icon`} />
+            <Typography variant="body1" style={textStyle}>
+                {getText()}
+            </Typography>
+        </div>
+        </a>
+    );
+}

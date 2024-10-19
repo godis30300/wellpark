@@ -73,13 +73,17 @@ function GoogleMaps() {
     return (
         <APIProvider apiKey={'AIzaSyC-PDovHdQ3dL_sq6t8cXH0I6Eqj8TSpdw'}>
             <Map
-                style={{ width: '100vw', height: '100vh' }}
+                style={{ width: '100%', height: '100%',borderRadius: '30px', overflow: 'hidden'}}
                 defaultCenter={{ lat: 22.54992, lng: 0 }}
                 defaultZoom={3}
                 gestureHandling={'greedy'}
                 disableDefaultUI={true}
-                fullscreenControl={false}>
-                <Directions />
+                fullscreenControl={false}
+                options={{
+                    mapTypeControl: false,
+                    streetViewControl: false,
+                }}>
+                {/* <Directions /> */}
                 </Map>
         </APIProvider>
     );

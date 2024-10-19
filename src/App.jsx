@@ -1,13 +1,12 @@
-import './App.css'
-import GoogleMaps from './components/GoogleMaps.jsx'
+import "./App.css";
+import FindParkingLot from "./components/FindParkingLot.jsx";
 
 function App() {
-
   return (
     <>
-     <GoogleMaps />
+      <FindParkingLot />
     </>
-  )
+  );
 }
 
-export default App
+export default App;

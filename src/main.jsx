@@ -8,6 +8,7 @@ import './index.css'
 import App from './App.jsx'
 import UseApi from './components/useApi.jsx'
 import ErrorPage from "./error-page";
+import FindParkingLot from './components/FindParkingLot.jsx';
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
   {
     path: "useApi",
     element: <UseApi />
+  },
+  {
+    path: "findParkLot",
+    element: <FindParkingLot />
   },
 ]);
 

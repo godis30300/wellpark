@@ -1,7 +1,7 @@
 import axios from 'axios'
 import  { useEffect,useState } from 'react'
 
-const baseURL = "https://wellpark.dd-long.fun/api/parks";
+const baseURL = "https://wellpark.dd-long.fun/api/api/latest-parks";
 
 export default function UseApi() {
     const [error, setError] = useState(null)
@@ -10,7 +10,7 @@ export default function UseApi() {
         const getWellpark = async () =>{
           try {
             const response = await axios.get(baseURL);
-            console.log(response.data);
+            return response.data;
           } catch (error) {
             setError(error);
           }
