@@ -1,13 +1,11 @@
 import { Grid, List, ListItem,ListItemIcon } from '@mui/material';
 import IconToggle from './IconToggle.jsx';
-import FloatingSearchBar from './FloatingSearchBar.jsx';
 import GoogleMap from './GoogleMap.jsx';
 
 
 export default function FindParkingLot() {
     return (
         <>
-        <FloatingSearchBar />
         <Grid
             container
             direction="column"

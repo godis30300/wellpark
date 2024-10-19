@@ -8,6 +8,7 @@ import MyLocation from '../img/my_location.svg'; // Import the MyLocation icon
 import MyDestination from '../img/my_destination.svg'; // Import the MyDestination icon
 import BottomModal from './BottomModal'; // Import the BottomModal component
 import NavigationModal from './NavigationModal'; // Import the NavigationModal component
+import FloatingSearchBar from './FloatingSearchBar.jsx';
 
 // Fetch parking data from the API
 const fetchParkingData = async () => {
@@ -252,6 +253,8 @@ const GoogleMap = () => {
     };
 
     return (
+        <>
+        <FloatingSearchBar/>
         <div style={{ height: "100%", width: "100%" }}>
             <div
                 id="googleMaps"
@@ -262,6 +265,7 @@ const GoogleMap = () => {
                 {modalContent}
             </BottomModal>
         </div>
+        </>
     );
 };
 
