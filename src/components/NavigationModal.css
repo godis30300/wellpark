@@ -22,6 +22,7 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    z-index: 1000; /* Ensure the overlay is above other components */
 }
 
 @keyframes slideUp {
@@ -55,7 +56,7 @@
     padding: 10px 0;
 }
 
-.modal-button {
+.navigationModal-button {
     flex: 1; /* Each button takes up half the width */
     padding: 10px 20px;
     border: none;
@@ -67,11 +68,11 @@
     margin: 0 5px; /* Add some space between buttons */
 }
 
-.modal-button:hover {
+.navigationModal-button:hover {
     background-color: #0056b3;
 }
 
-.modal-button-calculate {
+.navigationModal-button-calculate {
     width: 100%;
     padding: 10px 20px;
     border: none;
@@ -83,6 +84,6 @@
     margin: 10px 0; /* Add some space above and below the button */
 }
 
-.modal-button-calculate:hover {
+.navigationModal-button-calculate:hover {
     background-color: #218838;
 }

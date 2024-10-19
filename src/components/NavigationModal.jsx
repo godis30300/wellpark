@@ -21,11 +21,11 @@ const NavigationModal = ({ show, onClose, locationInfo }) => {
                     <h3>{locationInfo.name}</h3>
                     <p>地址: {locationInfo.address}</p>
                     <p>營業時間: {locationInfo.businessHours}</p>
-                    <button className="modal-button-calculate">停車費試算</button>
+                    <button className="navigationModal-button-calculate">停車費試算</button>
                 </div>
                 <div className="navigation-modal-footer">
-                    <button className="modal-button-close" onClick={onClose}>關閉</button>
-                    <button className="modal-button" onClick={locationInfo.onNavigate}>開始導航</button>
+                    <button className="navigationModal-button-close" onClick={onClose}>關閉</button>
+                    <button className="navigationModal-button" onClick={locationInfo.onNavigate}>開始導航</button>
                 </div>
             </div>
         </div>

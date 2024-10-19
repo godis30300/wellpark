@@ -1,8 +1,7 @@
 import { Grid, List, ListItem,ListItemIcon } from '@mui/material';
 import IconToggle from './IconToggle.jsx';
 import FloatingSearchBar from './FloatingSearchBar.jsx';
-//import GoogleMaps from './GoogleMaps.jsx';
-import GoogleMap2 from './GoogleMap2.jsx';
+import GoogleMap from './GoogleMap.jsx';
 
 
 export default function FindParkingLot() {
@@ -16,7 +15,7 @@ export default function FindParkingLot() {
         >
             {/* Google Map，佔據剩餘空間 */}
             <Grid item style={{ flexGrow: 9, marginBottom: '1rem' }}>
-                <GoogleMap2 />
+                <GoogleMap />
             </Grid>
 
             {/* ListItem，位於 Google Map 底下 */}

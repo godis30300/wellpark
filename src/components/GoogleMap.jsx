@@ -13,26 +13,12 @@ import NavigationModal from './NavigationModal'; // Import the NavigationModal c
 const fetchParkingData = async () => {
     try {
         const response = await axios.get('https://wellpark.dd-long.fun/api/latest-parks');
+        console.log(response.data.data);
         return response.data.data; // Access the nested data property
     } catch (error) {
         console.error("Error fetching parking data:", error);
         return [];
     }
-};
-
-// Example parking data for initial map center
-const initialParkingData = {
-    park_no: "004",
-    parking_name: "府後地下停車場",
-    address: "新竹市北區府後街42號",
-    business_hours: "24H",
-    weekdays: "汽車：20元/H",
-    holiday: "汽車：20元/H\r\n  充電設備資訊：\r\n  AC交流慢充(Type1(J1772))",
-    free_quantity: 22,
-    total_quantity: 292,
-    longitude: "120.969783",
-    latitude: "24.807260",
-    update_time: "2024-10-16 10:02:59.663",
 };
 
 const loadGoogleMapsScript = (callback) => {
@@ -53,12 +39,10 @@ const loadGoogleMapsScript = (callback) => {
 };
 
 const getMarkerIcon = (percentage) => {
-    if (percentage >= 75) {
+    if (percentage >= 40) {
         return Free; // 75% - 100%
-    } else if (percentage >= 50) {
+    } else if (percentage >= 35) {
         return Medium; // 50% - 74%
-    } else if (percentage >= 25) {
-        return Full; // 25% - 49%
     } else if (percentage > 0) {
         return Full; // 1% - 24%
     } else {
@@ -78,7 +62,7 @@ const calculateDistance = (lat1, lng1, lat2, lng2) => {
     return R * c; // Distance in kilometers
 };
 
-const GoogleMap2 = () => {
+const GoogleMap = () => {
     const mapRef = useRef(null); // 用於保存地圖容器的引用
     const [parkingData2, setParkingData2] = useState([]);
     const [map, setMap] = useState(null);
@@ -88,11 +72,10 @@ const GoogleMap2 = () => {
     const [markers, setMarkers] = useState([]);
     const [circle, setCircle] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [showNavigationModal, setShowNavigationModal] = useState(false);
     const [modalContent, setModalContent] = useState(null);
-    const [navigationContent, setNavigationContent] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
     const [selectedMarker, setSelectedMarker] = useState(null); // State to store the selected marker
+    const [showNavigationModal, setShowNavigationModal] = useState(false);
 
     // Fetch parking data
     useEffect(() => {
@@ -109,10 +92,7 @@ const GoogleMap2 = () => {
         loadGoogleMapsScript(() => {
             if (window.google && mapRef.current && !map) {
                 const newMap = new window.google.maps.Map(mapRef.current, {
-                    center: {
-                        lat: parseFloat(initialParkingData.latitude),
-                        lng: parseFloat(initialParkingData.longitude),
-                    },
+                    center: userLocation,
                     zoom: 15,
                     disableDefaultUI: true, // 隱藏所有默認的UI控件
                     mapTypeControl: false,
@@ -122,31 +102,6 @@ const GoogleMap2 = () => {
                     styles: [
                         {
                             featureType: 'poi',
-                            elementType: 'labels',
-                            stylers: [{ visibility: 'off' }],
-                        },
-                        {
-                            featureType: 'transit',
-                            elementType: 'labels',
-                            stylers: [{ visibility: 'off' }],
-                        },
-                        {
-                            featureType: 'road',
-                            elementType: 'labels',
-                            stylers: [{ visibility: 'off' }],
-                        },
-                        {
-                            featureType: 'administrative',
-                            elementType: 'labels',
-                            stylers: [{ visibility: 'off' }],
-                        },
-                        {
-                            featureType: 'landscape',
-                            elementType: 'labels',
-                            stylers: [{ visibility: 'off' }],
-                        },
-                        {
-                            featureType: 'water',
                             elementType: 'labels',
                             stylers: [{ visibility: 'off' }],
                         },
@@ -177,12 +132,13 @@ const GoogleMap2 = () => {
                 setMap(newMap);
             }
         });
-    }, [mapRef, map, activeInfoWindow, circle]);
+    }, [mapRef, map, activeInfoWindow, circle, userLocation]);
 
     // Add markers to the map
     useEffect(() => {
+        let newMarkers = [];
         if (map && parkingData2.length > 0) {
-            const newMarkers = parkingData2.map((data) => {
+            newMarkers = parkingData2.map((data) => {
                 const percentage = (data.free_quantity / data.total_quantity) * 100;
                 const icon = getMarkerIcon(percentage);
 
@@ -229,21 +185,6 @@ const GoogleMap2 = () => {
                         center: marker.getPosition(),
                     });
                     setCircle(newCircle);
-
-                    // Filter and add markers within 600 meters radius
-                    newMarkers.forEach((m) => {
-                        const distance = calculateDistance(
-                            marker.getPosition().lat(),
-                            marker.getPosition().lng(),
-                            m.getPosition().lat(),
-                            m.getPosition().lng()
-                        );
-                        if (distance <= 0.6) { // 0.6 kilometers
-                            m.setMap(map);
-                        } else {
-                            m.setMap(null);
-                        }
-                    });
                 });
 
                 return marker;
@@ -276,40 +217,6 @@ const GoogleMap2 = () => {
                     map.setCenter({ lat: latitude, lng: longitude });
                 }
             });
-
-            const watchId = navigator.geolocation.watchPosition((position) => {
-                const { latitude, longitude } = position.coords;
-                setUserLocation({ lat: latitude, lng: longitude });
-
-                if (selectedMarker) {
-                    const distance = calculateDistance(
-                        latitude,
-                        longitude,
-                        selectedMarker.getPosition().lat(),
-                        selectedMarker.getPosition().lng()
-                    );
-
-                    // If the user is within 100 meters of the destination, show the NavigationModal
-                    if (distance <= 0.1) { // 0.1 kilometers = 100 meters
-                        const selectedData = parkingData2.find(data => data.latitude === selectedMarker.getPosition().lat() && data.longitude === selectedMarker.getPosition().lng());
-                        setNavigationContent({
-                            name: selectedData.parking_name,
-                            address: selectedData.address,
-                            businessHours: selectedData.business_hours,
-                            onNavigate: () => {
-                                // Handle navigation logic here
-                                console.log('Navigating to destination...');
-                            },
-                        });
-                        setShowNavigationModal(true);
-                    }
-                }
-            });
-
-            // Cleanup the watchPosition when the component unmounts
-            return () => {
-                navigator.geolocation.clearWatch(watchId);
-            };
         }
     }, [map, selectedMarker, parkingData2]);
 
@@ -334,25 +241,14 @@ const GoogleMap2 = () => {
                             scaledSize: new window.google.maps.Size(32, 32), // Adjust the size as needed
                         },
                     });
-
-                    // Show the navigation modal
-                    const selectedData = parkingData2.find(data => data.latitude === selectedMarker.getPosition().lat() && data.longitude === selectedMarker.getPosition().lng());
-                    setNavigationContent({
-                        name: selectedData.parking_name,
-                        address: selectedData.address,
-                        businessHours: selectedData.business_hours,
-                        onNavigate: () => {
-                            // Handle navigation logic here
-                            console.log('Navigating to destination...');
-                        },
-                    });
-                    setShowNavigationModal(true);
                 } else {
                     console.error('Directions request failed due to ' + status);
                 }
             });
         }
         setShowModal(false); // Close the modal after setting the destination
+        setShowNavigationModal(true);
+
     };
 
     return (
@@ -365,9 +261,8 @@ const GoogleMap2 = () => {
             <BottomModal show={showModal} onClose={() => setShowModal(false)} onConfirm={handleNavigation}>
                 {modalContent}
             </BottomModal>
-            <NavigationModal show={showNavigationModal} onClose={() => setShowNavigationModal(false)} locationInfo={navigationContent} />
         </div>
     );
 };
 
-export default GoogleMap2;
+export default GoogleMap;
