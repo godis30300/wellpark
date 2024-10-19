@@ -13,7 +13,7 @@ import FloatingSearchBar from './FloatingSearchBar.jsx';
 // Fetch parking data from the API
 const fetchParkingData = async () => {
     try {
-        const response = await axios.get('https://wellpark.dd-long.fun/api/latest-parks');
+        const response = await axios.get('https://wellpark.dd-long.fun/api/latest-parks?per_page=100');
         console.log(response.data.data);
         return response.data.data; // Access the nested data property
     } catch (error) {
