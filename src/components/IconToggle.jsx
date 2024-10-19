@@ -50,15 +50,16 @@ export default function IconToggle({ iconType, link }) {
     const containerStyle = {
         textAlign: 'center',
         borderRadius: '8px',
-        backgroundColor: hover ? '#f0f0f0' : 'black', // 背景顏色變化
+        backgroundColor: hover ? '#C6FE22' : 'black', // 背景顏色變化
         transition: 'background-color 0.3s',         // 背景顏色平滑過渡
         cursor: 'pointer',
+        width: '18vw',
+        padding: '1%',
     };
 
     const textStyle = {
-        color: hover ? '#007bff' : 'white',  // 文字顏色變化
-        transition: 'color 0.3s',           // 文字顏色平滑過渡
-        marginTop: '0.5rem'
+        color: hover ? '#313131' : '#91A0A8',  // 文字顏色變化
+        transition: 'color 0.3s', 
     };
 
     return (
@@ -68,7 +69,7 @@ export default function IconToggle({ iconType, link }) {
             onMouseEnter={() => setHover(true)}  // 當鼠標進入時設置 hover 為 true
             onMouseLeave={() => setHover(false)} // 當鼠標離開時設置 hover 為 false
         >
-            <img src={getIcon()} alt={`${iconType} icon`} />
+            <img src={getIcon()} alt={`${iconType} icon`}/>
             <Typography variant="body1" style={textStyle}>
                 {getText()}
             </Typography>

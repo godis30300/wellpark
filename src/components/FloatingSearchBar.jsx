@@ -1,106 +1,102 @@
 import { useState } from 'react';
 import { TextField, Button, Box } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import FilterListIcon from '@mui/icons-material/FilterList';
+import FilterIcon from '../img/filter.svg';
 
-export default function FloatingSearchBar({ parkingData, map }) {
+export default function FloatingSearchBar({ onSearch }) {
     const [searchQuery, setSearchQuery] = useState('');
 
     const containerStyle = {
-        position: 'fixed', // 讓搜尋框固定懸浮
-        top: '20px',       // 距離頂部 20px
-        left: '50%',
-        transform: 'translateX(-50%)', // 水平居中
+        position: 'fixed',
+        top: '3%',
+        left: '0',
+        width: '100%',
         display: 'flex',
         alignItems: 'center',
         backgroundColor: 'transparent',
         borderRadius: '8px',
-        padding: '0.5rem',
-        zIndex: 1000, // 保證懸浮在其他元素上面
-        width: '80vw',
+        paddingLeft: '8%',
+        paddingRight: '5%',
+        paddingTop: '1%',
+        zIndex: 1000,
     };
 
-    const handleSearch = async () => {
-        if (!searchQuery) return;
 
-        // 使用 Google Maps Geocoding API 將地點轉換為經緯度
-        const geocoder = new window.google.maps.Geocoder();
-        geocoder.geocode({ address: searchQuery }, (results, status) => {
-            if (status === 'OK' && results[0]) {
-                const location = results[0].geometry.location;
-                const lat = location.lat();
-                const lng = location.lng();
-
-                // 計算所有停車場與該地點的距離
-                let closestParking = null;
-                let minDistance = Infinity;
-
-                parkingData.forEach(parking => {
-                    const distance = calculateDistance(lat, lng, parking.latitude, parking.longitude);
-                    if (distance < minDistance) {
-                        minDistance = distance;
-                        closestParking = parking;
-                    }
-                });
-
-                if (closestParking) {
-                    // 將地圖中心移動到最近的停車場
-                    map.setCenter({ lat: closestParking.latitude, lng: closestParking.longitude });
-                    map.setZoom(15); // 調整地圖縮放級別
-                }
-            } else {
-                alert('無法找到該地點，請重新輸入');
-            }
-        });
-    };
-
-    // 計算兩個經緯度之間的距離的輔助函數
-    const calculateDistance = (lat1, lng1, lat2, lng2) => {
-        const R = 6371; // 地球半徑，單位為公里
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLng = (lng2 - lng1) * Math.PI / 180;
-        const a =
-            0.5 - Math.cos(dLat) / 2 +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            (1 - Math.cos(dLng)) / 2;
-
-        return R * 2 * Math.asin(Math.sqrt(a));
+    const handleSearchClick = () => {
+        if (onSearch) {
+            onSearch(searchQuery);
+        }
     };
 
     return (
         <Box sx={containerStyle}>
-            {/* 左側的文字輸入框 */}
             <TextField
-                variant="outlined"
                 size="small"
                 placeholder="輸入目的地"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                color="white"
                 sx={{
-                    flexGrow: 1, marginRight: '0.5rem', backgroundColor: 'white',
+                    flexGrow: 1, marginRight: '0.5rem', backgroundColor: 'white', borderRadius: '20px', padding: '0.2rem', // 設置圓角
                     '& .MuiOutlinedInput-root': {
+                        backgroundColor: 'white', // 設置背景顏色
+                        borderRadius: '20px', // 設置圓角
+                        '&:hover': {
+                            backgroundColor: 'white', // 懸停時背景顏色不變
+                        },
+                        '&.Mui-focused': {
+                            backgroundColor: 'white', // 聚焦時背景顏色不變
+                        },
                         '& fieldset': {
                             border: 'none',
+                            borderRadius: '20px', // 設置圓角
+                        },
+                    },
+                    '& .MuiInputLabel-root': {
+                        color: 'inherit',
+                        '&.Mui-focused': {
+                            color: 'inherit',
                         },
                     },
                 }}
             />
-
-            {/* 中間的搜尋按鈕 */}
             <Button
                 variant="contained"
-                color="primary"
                 startIcon={<SearchIcon />}
-                sx={{ marginRight: '0.5rem' }}
-                onClick={handleSearch}
+                size="large"
+                sx={{
+                    backgroundColor: '#C6FE22', // 設置背景顏色
+                    color: '#313131', // 設置字體顏色
+                    '&:hover': {
+                        backgroundColor: '#B8F21A', // 設置懸停時的背景顏色
+                    },
+                    marginRight: '0.5rem',
+                    paddingRight: '0.5rem',
+                    height: '100%', // 設置高度為100%
+                    width: '100%', // 設置寬度和高度相同
+                    maxWidth: '12%', // 設置最大寬度
+                    maxHeight: '50px', // 設置最大高度
+                    borderRadius: '15px', // 設置圓角
+                }}
+                onClick={handleSearchClick}
             >
             </Button>
-
-            {/* 右側的過濾按鈕 */}
             <Button
-                variant="outlined"
-                color="default"
-                startIcon={<FilterListIcon />}
+                variant="contained"
+                sx={{
+                    backgroundColor: '#91A0A8', // 設置背景顏色
+                    color: '#C6FE22', // 設置字體顏色
+                    '&:hover': {
+                        backgroundColor: '#81929A', // 設置懸停時的背景顏色
+                    },
+                    height: '100%', // 設置高度為100%
+                    paddingRight: '0.5rem',
+                    width: '100%', // 設置寬度和高度相同
+                    maxWidth: '12%', // 設置最大寬度
+                    maxHeight: '50px', // 設置最大高度
+                    borderRadius: '15px', // 設置圓角
+                }}
+                startIcon={<img src={FilterIcon} alt="Filter" />}
             >
             </Button>
         </Box>

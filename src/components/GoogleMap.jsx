@@ -70,13 +70,14 @@ const GoogleMap = () => {
     const [activeInfoWindow, setActiveInfoWindow] = useState(null);
     const [directionsService, setDirectionsService] = useState(null);
     const [directionsRenderer, setDirectionsRenderer] = useState(null);
-    const [markers, setMarkers] = useState([]);
     const [circle, setCircle] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [modalContent, setModalContent] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
     const [selectedMarker, setSelectedMarker] = useState(null); // State to store the selected marker
     const [showNavigationModal, setShowNavigationModal] = useState(false);
+    const markersRef = useRef([]);
+    const circleRef = useRef(null);
 
     // Fetch parking data
     useEffect(() => {
@@ -86,6 +87,12 @@ const GoogleMap = () => {
         };
 
         fetchData();
+
+        // 設置定時器每5秒更新一次
+        //const intervalId = setInterval(fetchData, 5000);
+
+        // 清除定時器
+        return () => clearInterval(intervalId);
     }, []);
 
     // Initialize the map
@@ -100,9 +107,15 @@ const GoogleMap = () => {
                     streetViewControl: false,
                     fullscreenControl: false,
                     zoomControl: false,
+                    keyboardShortcuts: false,
                     styles: [
                         {
                             featureType: 'poi',
+                            elementType: 'labels',
+                            stylers: [{ visibility: 'off' }],
+                        },
+                        {
+                            featureType: 'water',
                             elementType: 'labels',
                             stylers: [{ visibility: 'off' }],
                         },
@@ -121,6 +134,14 @@ const GoogleMap = () => {
 
                 // Add click listener to close active InfoWindow when clicking on the map
                 newMap.addListener("click", () => {
+                    // 將所有標記設置為可見
+                    markersRef.current.forEach(marker => marker.setVisible(true));
+
+                    // 清除圓圈
+                    if (circleRef.current) {
+                        circleRef.current.setMap(null);
+                    }
+
                     if (activeInfoWindow) {
                         activeInfoWindow.close();
                         setActiveInfoWindow(null);
@@ -133,68 +154,99 @@ const GoogleMap = () => {
                 setMap(newMap);
             }
         });
-    }, [mapRef, map, activeInfoWindow, circle, userLocation]);
+    }, [mapRef, map, activeInfoWindow, circle, userLocation, circleRef]);
 
     // Add markers to the map
+
     useEffect(() => {
-        let newMarkers = [];
         if (map && parkingData2.length > 0) {
-            newMarkers = parkingData2.map((data) => {
+            const newMarkers = [];
+
+            parkingData2.forEach((data) => {
                 const percentage = (data.free_quantity / data.total_quantity) * 100;
                 const icon = getMarkerIcon(percentage);
 
-                const marker = new window.google.maps.Marker({
-                    position: {
-                        lat: parseFloat(data.latitude),
-                        lng: parseFloat(data.longitude),
-                    },
-                    map: map,
-                    title: data.parking_name,
-                    icon: {
+                // 查找現有標記
+                let marker = markersRef.current.find(m => m.getPosition().lat() === parseFloat(data.latitude) && m.getPosition().lng() === parseFloat(data.longitude));
+
+                if (marker) {
+                    // 更新現有標記的圖標
+                    marker.setIcon({
                         url: icon,
-                        scaledSize: new window.google.maps.Size(32, 32), // Adjust the size as needed
-                    },
-                });
-
-                // 點擊標記時打開模態窗口
-                marker.addListener("click", () => {
-                    setSelectedMarker(marker); // Store the selected marker
-                    setModalContent(
-                        <div>
-                            <h3>{data.parking_name}</h3>
-                            <p>地址: {data.address}</p>
-                            <p>營業時間: {data.business_hours}</p>
-                            <p>平日價格: {data.weekdays}</p>
-                            <p>假日價格: {data.holiday}</p>
-                            <p>剩餘車位: {data.free_quantity} / {data.total_quantity}</p>
-                        </div>
-                    );
-                    setShowModal(true);
-
-                    // Draw a circle with a 600-meter radius
-                    if (circle) {
-                        circle.setMap(null);
-                    }
-                    const newCircle = new window.google.maps.Circle({
-                        map: map,
-                        radius: 600, // 600 meters
-                        fillColor: 'gray',
-                        fillOpacity: 0.2,
-                        strokeColor: 'gray',
-                        strokeOpacity: 0.5,
-                        strokeWeight: 2,
-                        center: marker.getPosition(),
+                        scaledSize: new window.google.maps.Size(50, 50),
                     });
-                    setCircle(newCircle);
-                });
+                } else {
+                    // 創建新標記
+                    marker = new window.google.maps.Marker({
+                        position: {
+                            lat: parseFloat(data.latitude),
+                            lng: parseFloat(data.longitude),
+                        },
+                        map: map,
+                        title: data.parking_name, // 添加 title 屬性
+                        icon: {
+                            url: icon,
+                            scaledSize: new window.google.maps.Size(50, 50),
+                        },
+                    });
 
-                return marker;
+                    // 點擊標記時顯示模態窗口
+                    marker.addListener("click", () => {
+                        setSelectedMarker(marker);
+                        setModalContent(
+                            <div>
+                                <h3>{data.parking_name}</h3>
+                                <p>地址: {data.address}</p>
+                                <p>營業時間: {data.business_hours}</p>
+                                <p>平日價格: {data.weekdays}</p>
+                                <p>假日價格: {data.holiday}</p>
+                                <p>剩餘車位: {data.free_quantity} / {data.total_quantity}</p>
+                            </div>
+                        );
+                        setShowModal(true);
+
+                        // Draw a circle with a 600-meter radius
+                        if (circleRef.current) {
+                            circleRef.current.setMap(null);
+                        }
+                        const newCircle = new window.google.maps.Circle({
+                            map: map,
+                            radius: 600,
+                            fillColor: 'gray',
+                            fillOpacity: 0.2,
+                            strokeColor: 'gray',
+                            strokeOpacity: 0.5,
+                            strokeWeight: 2,
+                            center: marker.getPosition(),
+                        });
+                        circleRef.current = newCircle;
+
+                        //  隱藏圓圈外的標記，顯示圓圈內的標記
+                        markersRef.current.forEach(m => {
+                            const distance = calculateDistance(
+                                marker.getPosition().lat(),
+                                marker.getPosition().lng(),
+                                m.getPosition().lat(),
+                                m.getPosition().lng()
+                            );
+                            if (distance > 0.6) { // 距離大於600米
+                                m.setVisible(false);
+                            } else {
+                                m.setVisible(true); // 確保圓圈內的標記仍然顯示
+                            }
+                        });
+                    });
+
+                    newMarkers.push(marker);
+                }
             });
 
-            setMarkers(newMarkers);
+            // 更新標記狀態
+            markersRef.current = [...markersRef.current, ...newMarkers];
         }
-    }, [map, parkingData2, activeInfoWindow, directionsService, directionsRenderer, circle]);
+    }, [map, parkingData2, circle]);
 
+    //markers.forEach(marker => marker.setMap(null));
     // Get user's current location and watch for changes
     useEffect(() => {
         if (navigator.geolocation) {
@@ -210,7 +262,7 @@ const GoogleMap = () => {
                         title: 'My Location',
                         icon: {
                             url: MyLocation,
-                            scaledSize: new window.google.maps.Size(32, 32), // Adjust the size as needed
+                            scaledSize: new window.google.maps.Size(50, 50), // Adjust the size as needed
                         },
                     });
 
@@ -239,7 +291,7 @@ const GoogleMap = () => {
                         title: 'My Destination',
                         icon: {
                             url: MyDestination,
-                            scaledSize: new window.google.maps.Size(32, 32), // Adjust the size as needed
+                            scaledSize: new window.google.maps.Size(50, 50), // Adjust the size as needed
                         },
                     });
                 } else {
@@ -251,20 +303,97 @@ const GoogleMap = () => {
         setShowNavigationModal(true);
 
     };
+    const handleSearch = async (searchQuery) => {
+        if (!searchQuery) return;
+
+        // 使用 Google Maps Geocoding API 將地點轉換為經緯度
+        const geocoder = new window.google.maps.Geocoder();
+        geocoder.geocode({ address: searchQuery }, (results, status) => {
+            if (status === 'OK' && results[0]) {
+                const location = results[0].geometry.location;
+                const lat = location.lat();
+                const lng = location.lng();
+
+                // 確保 markers 是一個有效的數組
+                if (Array.isArray(markersRef.current)) {
+                    let closestMarker = null;
+                    let minDistance = Infinity;
+
+                    markersRef.current.forEach(marker => marker.setVisible(true));
+
+                    markersRef.current.forEach(marker => {
+                        const markerPosition = marker.getPosition();
+                        const markerLat = markerPosition.lat();
+                        const markerLng = markerPosition.lng();
+                        const distance = calculateDistance(lat, lng, markerLat, markerLng);
+
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            closestMarker = marker;
+                        }
+                    });
+
+                    if (closestMarker) {
+                        // 將地圖中心移動到最近的標記
+                        map.setCenter(closestMarker.getPosition());
+                        map.setZoom(15); // 調整地圖縮放級別
+
+                        // 畫一個600米的圓圈
+                        if (circleRef.current) {
+                            circleRef.current.setMap(null);
+                        }
+                        const newCircle = new window.google.maps.Circle({
+                            map: map,
+                            radius: 600,
+                            fillColor: 'gray',
+                            fillOpacity: 0.2,
+                            strokeColor: 'gray',
+                            strokeOpacity: 0.5,
+                            strokeWeight: 2,
+                            center: closestMarker.getPosition(),
+                        });
+                        circleRef.current = newCircle;
+
+                        // 隱藏圓圈外的標記，顯示圓圈內的標記
+                        markersRef.current.forEach(m => {
+                            const distance = calculateDistance(
+                                closestMarker.getPosition().lat(),
+                                closestMarker.getPosition().lng(),
+                                m.getPosition().lat(),
+                                m.getPosition().lng()
+                            );
+                            if (distance > 0.6) { // 距離大於600米
+                                m.setVisible(false);
+                            } else {
+                                m.setVisible(true); // 確保圓圈內的標記顯示
+                            }
+                        });
+                    }
+                } else {
+                    console.error('markers is not an array');
+                }
+            } else {
+                alert('無法找到該地點，請重新輸入');
+            }
+        });
+    };
 
     return (
         <>
-        <FloatingSearchBar/>
-        <div style={{ height: "100%", width: "100%" }}>
-            <div
-                id="googleMaps"
-                ref={mapRef}
-                style={{ height: "100%", width: "100%" }}
-            ></div>
-            <BottomModal show={showModal} onClose={() => setShowModal(false)} onConfirm={handleNavigation}>
-                {modalContent}
-            </BottomModal>
-        </div>
+            <FloatingSearchBar onSearch={handleSearch} />
+            <div style={{ height: "100%", width: "100%" }}>
+                <div
+                    id="googleMaps"
+                    ref={mapRef}
+                    style={{
+                        height: "100%", width: "100%",
+                        borderRadius: '2rem'
+                    }}
+                ></div>
+                <BottomModal show={showModal} onClose={() => setShowModal(false)} onConfirm={handleNavigation}>
+                    {modalContent}
+                </BottomModal>
+            </div>
         </>
     );
 };
