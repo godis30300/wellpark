@@ -1,4 +1,4 @@
-.bottom-modal-overlay {
+.navigation-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -11,7 +11,7 @@
     z-index: 1000; /* Ensure the overlay is above other components */
 }
 
-.bottom-modal {
+.navigation-modal {
     background: white;
     padding: 20px;
     border-radius: 10px 10px 0 0;
@@ -33,7 +33,7 @@
     }
 }
 
-.bottom-modal-close {
+.navigation-modal-close {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -43,23 +43,24 @@
     cursor: pointer;
 }
 
-.bottom-modal-content {
+.navigation-modal-content {
     margin-top: 20px;
-    height: calc(100% - 80px); /* Adjust for padding, close button, and footer */
+    height: calc(100% - 120px); /* Adjust for padding, close button, and footer */
     overflow-y: auto; /* Enable scrolling if content overflows */
 }
 
-.bottom-modal-footer {
+.navigation-modal-footer {
     display: flex;
     justify-content: space-between;
+    padding: 10px 0;
 }
 
 .modal-button {
     flex: 1; /* Each button takes up half the width */
     padding: 10px 20px;
     border: none;
-    background-color: #C6FE22;
-    color: black;
+    background-color: #007bff;
+    color: white;
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
@@ -70,19 +71,18 @@
     background-color: #0056b3;
 }
 
-
-.modal-button-close {
-    flex: 1; /* Each button takes up half the width */
+.modal-button-calculate {
+    width: 100%;
     padding: 10px 20px;
     border: none;
-    background-color: #313131;
+    background-color: #28a745;
     color: white;
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
-    margin: 0 5px; /* Add some space between buttons */
+    margin: 10px 0; /* Add some space above and below the button */
 }
 
-.modal-button-close:hover {
-    background-color: #0056b3;
+.modal-button-calculate:hover {
+    background-color: #218838;
 }

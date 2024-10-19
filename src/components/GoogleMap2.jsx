@@ -5,7 +5,9 @@ import Medium from '../img/medium.svg';
 import Free from '../img/free.svg';
 import Zero from '../img/zero.svg';
 import MyLocation from '../img/my_location.svg'; // Import the MyLocation icon
+import MyDestination from '../img/my_destination.svg'; // Import the MyDestination icon
 import BottomModal from './BottomModal'; // Import the BottomModal component
+import NavigationModal from './NavigationModal'; // Import the NavigationModal component
 
 // Fetch parking data from the API
 const fetchParkingData = async () => {
@@ -86,7 +88,9 @@ const GoogleMap2 = () => {
     const [markers, setMarkers] = useState([]);
     const [circle, setCircle] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [showNavigationModal, setShowNavigationModal] = useState(false);
     const [modalContent, setModalContent] = useState(null);
+    const [navigationContent, setNavigationContent] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
     const [selectedMarker, setSelectedMarker] = useState(null); // State to store the selected marker
 
@@ -249,7 +253,7 @@ const GoogleMap2 = () => {
         }
     }, [map, parkingData2, activeInfoWindow, directionsService, directionsRenderer, circle]);
 
-    // Get user's current location
+    // Get user's current location and watch for changes
     useEffect(() => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition((position) => {
@@ -272,10 +276,44 @@ const GoogleMap2 = () => {
                     map.setCenter({ lat: latitude, lng: longitude });
                 }
             });
-        }
-    }, [map]);
 
-    const setDestination = () => {
+            const watchId = navigator.geolocation.watchPosition((position) => {
+                const { latitude, longitude } = position.coords;
+                setUserLocation({ lat: latitude, lng: longitude });
+
+                if (selectedMarker) {
+                    const distance = calculateDistance(
+                        latitude,
+                        longitude,
+                        selectedMarker.getPosition().lat(),
+                        selectedMarker.getPosition().lng()
+                    );
+
+                    // If the user is within 100 meters of the destination, show the NavigationModal
+                    if (distance <= 0.1) { // 0.1 kilometers = 100 meters
+                        const selectedData = parkingData2.find(data => data.latitude === selectedMarker.getPosition().lat() && data.longitude === selectedMarker.getPosition().lng());
+                        setNavigationContent({
+                            name: selectedData.parking_name,
+                            address: selectedData.address,
+                            businessHours: selectedData.business_hours,
+                            onNavigate: () => {
+                                // Handle navigation logic here
+                                console.log('Navigating to destination...');
+                            },
+                        });
+                        setShowNavigationModal(true);
+                    }
+                }
+            });
+
+            // Cleanup the watchPosition when the component unmounts
+            return () => {
+                navigator.geolocation.clearWatch(watchId);
+            };
+        }
+    }, [map, selectedMarker, parkingData2]);
+
+    const handleNavigation = () => {
         if (directionsService && directionsRenderer && selectedMarker) {
             const request = {
                 origin: userLocation, // Use user's current location as the starting point
@@ -285,6 +323,30 @@ const GoogleMap2 = () => {
             directionsService.route(request, (result, status) => {
                 if (status === window.google.maps.DirectionsStatus.OK) {
                     directionsRenderer.setDirections(result);
+
+                    // Add destination marker with MyDestination icon
+                    new window.google.maps.Marker({
+                        position: selectedMarker.getPosition(),
+                        map: map,
+                        title: 'My Destination',
+                        icon: {
+                            url: MyDestination,
+                            scaledSize: new window.google.maps.Size(32, 32), // Adjust the size as needed
+                        },
+                    });
+
+                    // Show the navigation modal
+                    const selectedData = parkingData2.find(data => data.latitude === selectedMarker.getPosition().lat() && data.longitude === selectedMarker.getPosition().lng());
+                    setNavigationContent({
+                        name: selectedData.parking_name,
+                        address: selectedData.address,
+                        businessHours: selectedData.business_hours,
+                        onNavigate: () => {
+                            // Handle navigation logic here
+                            console.log('Navigating to destination...');
+                        },
+                    });
+                    setShowNavigationModal(true);
                 } else {
                     console.error('Directions request failed due to ' + status);
                 }
@@ -300,9 +362,10 @@ const GoogleMap2 = () => {
                 ref={mapRef}
                 style={{ height: "100%", width: "100%" }}
             ></div>
-            <BottomModal show={showModal} onClose={() => setShowModal(false)} onConfirm={setDestination}>
+            <BottomModal show={showModal} onClose={() => setShowModal(false)} onConfirm={handleNavigation}>
                 {modalContent}
             </BottomModal>
+            <NavigationModal show={showNavigationModal} onClose={() => setShowNavigationModal(false)} locationInfo={navigationContent} />
         </div>
     );
 };

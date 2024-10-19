@@ -19,8 +19,8 @@ const BottomModal = ({ show, onClose, onConfirm, children }) => {
                 </button>
                 <div className="bottom-modal-content">{children}</div>
                 <div className="bottom-modal-footer">
-                    <button className="modal-button" onClick={onClose}>Cancel</button>
-                    <button className="modal-button" onClick={onConfirm}>Confirm</button>
+                    <button className="modal-button-close" onClick={onClose}>關閉</button>
+                    <button className="modal-button" onClick={onConfirm}>開始導航</button>
                 </div>
             </div>
         </div>
