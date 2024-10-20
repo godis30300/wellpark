@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import AboutIcon from '../img/about.png';
+import AboutIcon from '../img/about.svg';
 import FeeIcon from '../img/fee.png';
 import LotIcon from '../img/lot.png';
-import ListIcon from '../img/list.png';
-import AboutIcon_hover from '../img/about-hover.png';
+import ListIcon from '../img/list.svg';
+import AboutIcon_hover from '../img/about-hover.svg';
 import FeeIcon_hover from '../img/fee-hover.png';
 import LotIcon_hover from '../img/lot-hover.png';
-import ListIcon_hover from '../img/list-hover.png';
+import ListIcon_hover from '../img/list-hover.svg';
 import { Typography } from '@mui/material'; // 用於顯示文字
 
 // 定義一個 IconToggle 組件
@@ -34,13 +34,13 @@ export default function IconToggle({ iconType, link }) {
     const getText = () => {
         switch (iconType) {
             case 'about':
-                return '關於我';
+                return '收藏夾';
             case 'fee':
-                return '停車費';
+                return '停車記';
             case 'lot':
                 return '找車位';
             case 'list':
-                return '活動表';
+                return '路況通';
             default:
                 return 'List';  // 默認文字
         }
