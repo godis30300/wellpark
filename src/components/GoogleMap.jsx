@@ -27,7 +27,7 @@ const loadGoogleMapsScript = (callback) => {
 
     if (!existingScript) {
         const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyC-PDovHdQ3dL_sq6t8cXH0I6Eqj8TSpdw`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyD39F2_56aZyDakCMFqZcjs_z4GX_h5wEQ`;
         script.id = 'googleMapsScript';
         document.body.appendChild(script);
 
