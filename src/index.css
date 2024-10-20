@@ -1,7 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@font-face {
+    font-family: 'GlowSansTC-Extended-Medium';
+    src: url('../src/fonts/GlowSansTC-Extended-Medium.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
 
 body {
-    font-family: 'Roboto', sans-serif; /* Set the default font */
+    font-family: 'GlowSansTC-Extended-Medium', sans-serif !important;/* Set the default font */
     margin: 0;
     padding: 0;
     box-sizing: border-box;

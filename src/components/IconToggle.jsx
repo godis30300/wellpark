@@ -59,7 +59,8 @@ export default function IconToggle({ iconType, link }) {
 
     const textStyle = {
         color: hover ? '#313131' : '#91A0A8',  // 文字顏色變化
-        transition: 'color 0.3s', 
+        transition: 'color 0.3s',
+        fontFamily: 'GlowSansTC-Extended-Medium, sans-serif', // 應用字體
     };
 
     return (

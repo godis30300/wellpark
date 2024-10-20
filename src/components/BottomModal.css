@@ -44,8 +44,6 @@
 }
 
 .bottom-modal-content {
-    margin-top: 20px;
-    height: calc(100% - 80px); /* Adjust for padding, close button, and footer */
     overflow-y: auto; /* Enable scrolling if content overflows */
 }
 
