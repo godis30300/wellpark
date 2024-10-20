@@ -9,7 +9,7 @@ export default function FindParkingLot() {
         <Grid
             container
             direction="column"
-            style={{ height: '99vh', width: '100%', padding: '1rem', boxSizing: 'border-box' }}
+            style={{ height: '99vh', width: '95%', padding: '1rem', boxSizing: 'border-box' }}
         >
             {/* Google Map，佔據剩餘空間 */}
             <Grid item style={{ flexGrow: 9, marginBottom: '0.5rem', }}>
