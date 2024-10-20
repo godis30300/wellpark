@@ -316,59 +316,40 @@ const GoogleMap = () => {
 
                 // 確保 markers 是一個有效的數組
                 if (Array.isArray(markersRef.current)) {
-                    let closestMarker = null;
-                    let minDistance = Infinity;
+                    // 將地圖中心移動到搜尋結果位置
+                    map.setCenter(location);
+                    map.setZoom(15); // 調整地圖縮放級別
+// 畫一個600米的圓圈
+                    if (circleRef.current) {
+                        circleRef.current.setMap(null);
+                    };
+                    const newCircle = new window.google.maps.Circle({
+                        map: map,
+                        radius: 600,
+                        fillColor: 'gray',
+                        fillOpacity: 0.2,
+                        strokeColor: 'gray',
+                        strokeOpacity: 0.5,
+                        strokeWeight: 2,
+                        center: location,
+                    });
+                    circleRef.current = newCircle;
 
-                    markersRef.current.forEach(marker => marker.setVisible(true));
-
-                    markersRef.current.forEach(marker => {
-                        const markerPosition = marker.getPosition();
-                        const markerLat = markerPosition.lat();
-                        const markerLng = markerPosition.lng();
-                        const distance = calculateDistance(lat, lng, markerLat, markerLng);
-
-                        if (distance < minDistance) {
-                            minDistance = distance;
-                            closestMarker = marker;
+                    // 隱藏圓圈外的標記，顯示圓圈內的標記
+                    markersRef.current.forEach(m => {
+                        const distance = calculateDistance(
+                            location.lat(),
+                            location.lng(),
+                            m.getPosition().lat(),
+                            m.getPosition().lng()
+                        );
+                        if (distance > 0.6) { // 距離大於600米
+                            m.setVisible(false);
+                        } else {
+                            m.setVisible(true); // 確保圓圈內的標記顯示
                         }
                     });
 
-                    if (closestMarker) {
-                        // 將地圖中心移動到最近的標記
-                        map.setCenter(closestMarker.getPosition());
-                        map.setZoom(15); // 調整地圖縮放級別
-
-                        // 畫一個600米的圓圈
-                        if (circleRef.current) {
-                            circleRef.current.setMap(null);
-                        }
-                        const newCircle = new window.google.maps.Circle({
-                            map: map,
-                            radius: 600,
-                            fillColor: 'gray',
-                            fillOpacity: 0.2,
-                            strokeColor: 'gray',
-                            strokeOpacity: 0.5,
-                            strokeWeight: 2,
-                            center: closestMarker.getPosition(),
-                        });
-                        circleRef.current = newCircle;
-
-                        // 隱藏圓圈外的標記，顯示圓圈內的標記
-                        markersRef.current.forEach(m => {
-                            const distance = calculateDistance(
-                                closestMarker.getPosition().lat(),
-                                closestMarker.getPosition().lng(),
-                                m.getPosition().lat(),
-                                m.getPosition().lng()
-                            );
-                            if (distance > 0.6) { // 距離大於600米
-                                m.setVisible(false);
-                            } else {
-                                m.setVisible(true); // 確保圓圈內的標記顯示
-                            }
-                        });
-                    }
                 } else {
                     console.error('markers is not an array');
                 }
