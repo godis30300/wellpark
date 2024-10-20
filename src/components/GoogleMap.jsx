@@ -29,7 +29,7 @@ const loadGoogleMapsScript = (callback) => {
 
     if (!existingScript) {
         const script = document.createElement("script");
-        script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyD39F2_56aZyDakCMFqZcjs_z4GX_h5wEQ`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBHSX4qQroNxUnvYHiPLOO1KJr3-xMDexk`;
         script.id = "googleMapsScript";
         document.body.appendChild(script);
 
